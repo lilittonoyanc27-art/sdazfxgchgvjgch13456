@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pasapalabra — Español &amp; Հայերեն</title>
+    <meta
+      name="description"
+      content="Interactive Spanish-Armenian Pasapalabra word game with 3 themed decks (81 questions), click-to-translate Armenian hints, and answer reveal."
+    />
+    <meta property="og:title" content="Pasapalabra — Español &amp; Հայերեն" />
+    <meta
+      property="og:description"
+      content="Interactive Spanish-Armenian Pasapalabra word game with 3 themed decks (81 questions), click-to-translate Armenian hints, and answer reveal."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Armenian:wght@400;500;600;700&family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div id="app" class="app-shell">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <a href="#top" class="brand" aria-label="Pasapalabra Inicio">Pasapalabra</a>
+
+          <nav class="deck-nav" aria-label="Elegir parte del juego">
+            <button type="button" class="deck-tab is-active" data-deck="0">
+              Parte 1 · General
+            </button>
+            <button type="button" class="deck-tab" data-deck="1">
+              Parte 2 · Cotidiana
+            </button>
+            <button type="button" class="deck-tab" data-deck="2">
+              Parte 3 · Tiempo y Meses
+            </button>
+          </nav>
+
+          <div class="topbar-actions">
+            <button type="button" id="btn-reset" class="btn-reset">
+              Reiniciar · Սկսել նորից
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-stage">
+        <section class="deck-intro" aria-live="polite">
+          <div class="deck-intro-text">
+            <h1 id="deck-title" class="deck-title"></h1>
+            <p id="deck-meta" class="deck-meta"></p>
+          </div>
+          <div class="utility-controls">
+            <button type="button" id="btn-timer-toggle" class="btn-utility" aria-pressed="false">
+              Cronómetro: Libre
+            </button>
+            <button type="button" id="btn-sound-toggle" class="btn-utility" aria-pressed="true">
+              Sonido: Sí
+            </button>
+          </div>
+        </section>
+
+        <div class="game-grid">
+          <!-- Left Column: El Rosco 27-letter ring -->
+          <section class="rosco-panel" aria-label="Rosco de Pasapalabra">
+            <div class="rosco-stage" id="rosco-stage">
+              <div class="rosco-ring" id="rosco-ring" role="group" aria-label="27 preguntas del rosco"></div>
+
+              <div class="rosco-center">
+                <div class="rosco-active-badge" id="rosco-active-letter">A</div>
+                <div class="rosco-center-sub" id="rosco-center-sub">1 / 27</div>
+
+                <div class="rosco-counters" aria-label="Puntuación">
+                  <div class="counter-orb counter-timer" id="counter-timer-wrap" title="Tiempo / Progreso">
+                    <span id="counter-timer" class="tabular-nums">0/27</span>
+                  </div>
+                  <div class="counter-orb counter-correct" title="Aciertos">
+                    <span id="counter-correct" class="tabular-nums">0</span>
+                  </div>
+                </div>
+
+                <div class="rosco-stats-line tabular-nums">
+                  <span class="stat-item stat-ok">✓ <strong id="stat-correct">0</strong></span>
+                  <span aria-hidden="true">·</span>
+                  <span class="stat-item stat-err">✕ <strong id="stat-wrong">0</strong></span>
+                  <span aria-hidden="true">·</span>
+                  <span class="stat-item stat-skip">→ <strong id="stat-skipped">0</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <p class="rosco-hint">
+              Սեղմիր տառի վրա՝ հարցին անցնելու համար · Haz clic en cualquier letra para saltar a esa pregunta
+            </p>
+          </section>
+
+          <!-- Right Column: Question Card, Click-for-Armenian, Answer Reveal -->
+          <section class="question-panel" aria-live="polite">
+            <div class="question-card" id="question-card">
+              <div class="question-header">
+                <div class="question-letter-row">
+                  <span class="question-letter-mark" id="q-letter-mark">A</span>
+                  <div class="question-index-info">
+                    <span class="question-topic" id="q-topic">Empieza por A</span>
+                    <span class="question-status-text" id="q-status-text">Pendiente</span>
+                  </div>
+                </div>
+                <div class="question-nav-arrows">
+                  <button type="button" id="btn-prev" class="btn-icon" aria-label="Pregunta anterior" title="Anterior">
+                    ←
+                  </button>
+                  <button type="button" id="btn-next" class="btn-icon" aria-label="Siguiente pregunta" title="Siguiente">
+                    →
+                  </button>
+                </div>
+              </div>
+
+              <!-- Clickable Spanish Question Box: clicking opens/toggles Armenian translation -->
+              <button
+                type="button"
+                id="btn-spanish-question"
+                class="spanish-question-box"
+                aria-expanded="false"
+                aria-controls="armenian-translation-box"
+              >
+                <span class="lang-row-label">
+                  <span>🇪🇸 Español</span>
+                  <span class="translate-cue" id="translate-cue">
+                    Սեղմիր հայերեն թարգմանության համար · Clic para traducir
+                  </span>
+                </span>
+                <span class="spanish-question-text" id="q-spanish"></span>
+              </button>
+
+              <!-- Armenian Translation (revealed on clicking the Spanish question) -->
+              <div id="armenian-translation-box" class="armenian-box" hidden>
+                <div class="lang-row-label">
+                  <span>🇦🇲 Հայերեն թարգմանություն</span>
+                </div>
+                <p class="armenian-question-text" id="q-armenian"></p>
+              </div>
+
+              <!-- Player Answer Input Form -->
+              <form id="answer-form" class="answer-form" autocomplete="off">
+                <label for="answer-input" class="sr-only">Escribe tu respuesta en español</label>
+                <input
+                  id="answer-input"
+                  type="text"
+                  class="answer-input"
+                  placeholder="Escribe una palabra en español... (մեկ բառ)"
+                  spellcheck="false"
+                />
+                <button type="submit" id="btn-check" class="btn-primary">
+                  Comprobar · Ստուգել
+                </button>
+              </form>
+
+              <div id="feedback-banner" class="feedback-banner" hidden></div>
+
+              <!-- Separate Action Bar: Pasapalabra + Separate View Answer Button -->
+              <div class="action-bar">
+                <button type="button" id="btn-pasapalabra" class="btn-secondary">
+                  Pasapalabra · Բաց թողնել
+                </button>
+                <button type="button" id="btn-reveal-answer" class="btn-reveal">
+                  Ver respuesta · Տեսնել պատասխանը
+                </button>
+              </div>
+
+              <!-- Answer Reveal Box (opened by the separate "Ver respuesta" button or after checking) -->
+              <div id="answer-reveal-box" class="answer-reveal-box" hidden>
+                <div class="reveal-header">
+                  <span class="reveal-label">Respuesta · Պատասխան</span>
+                  <div class="self-grade-actions" id="self-grade-actions">
+                    <button type="button" id="btn-mark-correct" class="btn-grade btn-grade-ok">
+                      ✓ Ճիշտ գիտեի
+                    </button>
+                    <button type="button" id="btn-mark-wrong" class="btn-grade btn-grade-err">
+                      ✕ Չգիտեի
+                    </button>
+                  </div>
+                </div>
+                <div class="reveal-word-pair">
+                  <span class="reveal-es" id="reveal-es"></span>
+                  <span class="reveal-sep" aria-hidden="true">—</span>
+                  <span class="reveal-am" id="reveal-am"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Compact 27-Letter Quick Strip for fast overview & keyboard/touch access -->
+            <div class="quick-strip-wrap">
+              <div class="quick-strip-header">
+                <span class="quick-strip-title">Acceso rápido · Արագ անցում</span>
+                <span class="quick-strip-progress tabular-nums" id="strip-progress">0 / 27 resueltas</span>
+              </div>
+              <div id="quick-strip" class="quick-strip" role="group" aria-label="Lista rápida de letras"></div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <!-- Round Summary Modal -->
+      <div id="summary-modal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="summary-title">
+        <div class="modal-card">
+          <div class="modal-header">
+            <div>
+              <h2 id="summary-title" class="modal-title">¡Rosco completado! · Խաղն ավարտվեց</h2>
+              <p id="summary-subtitle" class="modal-subtitle"></p>
+            </div>
+            <button type="button" id="btn-close-summary" class="btn-icon" aria-label="Cerrar resumen">✕</button>
+          </div>
+
+          <div class="summary-kpis tabular-nums">
+            <div class="summary-kpi">
+              <span class="kpi-value kpi-ok" id="sum-correct">0</span>
+              <span class="kpi-label">Aciertos · Ճիշտ</span>
+            </div>
+            <div class="summary-kpi">
+              <span class="kpi-value kpi-err" id="sum-wrong">0</span>
+              <span class="kpi-label">Fallos · Սխալ</span>
+            </div>
+            <div class="summary-kpi">
+              <span class="kpi-value kpi-neutral" id="sum-revealed">0</span>
+              <span class="kpi-label">Vistas · Բացված</span>
+            </div>
+          </div>
+
+          <div id="summary-list" class="summary-list"></div>
+
+          <div class="modal-footer">
+            <button type="button" id="btn-summary-review" class="btn-secondary">
+              Seguir revisando · Վերանայել
+            </button>
+            <button type="button" id="btn-play-again" class="btn-primary">
+              Jugar de nuevo · Սկսել նորից
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

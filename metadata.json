@@ -1,0 +1,6 @@
+{
+  "name": "Pasapalabra — Español & Հայերեն",
+  "description": "Interactive Spanish-Armenian Pasapalabra word game with 3 themed decks (81 questions), click-to-translate Armenian hints, and answer reveal.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
